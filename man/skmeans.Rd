@@ -17,8 +17,11 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
 \arguments{
   \item{x}{A numeric data matrix, with rows corresponding to the objects
     to be partitioned (such that row \eqn{b} contains \eqn{x_b}).  Can
-    be a dense matrix, a simple triplet matrix (package \pkg{slam}), or
-    a dgTMatrix (package \pkg{Matrix}).}
+    be a dense matrix, a
+    \link[slam:matrix]{simple triplet matrix}
+    (package \pkg{slam}), or a
+    \link[Matrix:dgTMatrix-class]{dgTMatrix}
+    (package \pkg{Matrix}).}
   \item{k}{an integer giving the number of classes to be used in the
     partition.}
   \item{method}{a character string specifying one of the built-in
@@ -42,10 +45,10 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
 \details{
   The \dQuote{simple} spherical \eqn{k}-means problem where all case
   weights are one and \eqn{m = 1} is equivalent to maximizing the
-  criterion (denoted \eqn{I2} in the CLUTO documentation)
-  \eqn{\sum_j \sum_{b \in C_j} cos(x_b, p_j)},
+  criterion \eqn{\sum_j \sum_{b \in C_j} \cos(x_b, p_j)},
   where \eqn{C_j} is the \eqn{j}-th class of the partition.  This is the
-  formulation used in Dhillon & Modha (2001) and related references.
+  formulation used in Dhillon & Modha (2001) and related references, and
+  is criterion function \eqn{\mathcal{I}_2} in the CLUTO documentation.
 
   Obtaining optimal spherical \eqn{k}-means partitions obviously is a
   computationally hard problem, and several methods are available which
@@ -53,30 +56,30 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   follows.
 
   \describe{
-    \item{"genetic"}{a genetic algorithm patterned after the genetic
-      \eqn{k}-means algorithm of Krishna & Murty (1999).}
-    \item{"pclust"}{a Lloyd-Forgy style fixed-point algorithm which
+    \item{\code{"genetic"}}{a genetic algorithm patterned after the
+      genetic \eqn{k}-means algorithm of Krishna & Narasimha Murty (1999).}
+    \item{\code{"pclust"}}{a Lloyd-Forgy style fixed-point algorithm which
       iterates between determining optimal memberships for fixed
       prototypes, and computing optimal prototypes for fixed
       memberships, using the general-purpose prototype-based
       partitioning framework of \code{\link[clue]{pclust}} in package
       \pkg{clue}.}
-    \item{"CLUTO"}{an interface to the \code{vcluster} partitional
+    \item{\code{"CLUTO"}}{an interface to the \code{vcluster} partitional
       clustering program from CLUTO, the CLUstering TOolkit by George
       Karypis.}
-    \item{"lih"}{the Local Improvement Heuristic of Dhillon, Guan and
-      Kogan (2002).  If a fixed-point iteration does not (sufficiently)
+    \item{\code{"lih"}}{the Local Improvement Heuristic of Dhillon, Guan
+      and Kogan (2002).  If a fixed-point iteration does not (sufficiently)
       improve the criterion, improvement by swapping the clusters of two
       elements is attempted.}
-    \item{"lihc"}{the Local Improvement Heuristic with Chains method of
-      Dhillon, Guan and Kogan (2002).  This attempts further
+    \item{\code{"lihc"}}{the Local Improvement Heuristic with Chains
+      method of Dhillon, Guan and Kogan (2002).  This attempts further
       improvements via Kernighan-Lin object moves chains.}
   }
 
-  Method \code{"pclust"} is the only method available for weighted or
-  soft spherical \eqn{k}-means problems.  By default, the genetic
-  algorithm is used for the simple case, and the fixed-point algorithm
-  otherwise.
+  Method \code{"pclust"} is the only method available for soft spherical
+  \eqn{k}-means problems.  Method \code{"genetic"} can handle case
+  weights.  By default, the genetic algorithm is used for obtained hard
+  partitions, and the fixed-point algorithm otherwise.
 
   Control parameters for method \code{"genetic"} are as follows.
   \describe{
@@ -138,10 +141,10 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   \eqn{k}-means partitions, respectively.
 }
 \value{
-  An object of class \code{pclust} (see \code{\link[clue]{pclust}} in
-  package \pkg{clue} for further details) representing the obtained
-  spherical \eqn{k}-means partition, which is a list with components
-  including the following:
+  An object of class \code{pclust} (see the information on
+  \link[clue:pclust]{pclust objects} in package \pkg{clue} for
+  further details) representing the obtained spherical \eqn{k}-means
+  partition, which is a list with components including the following:
   \item{prototypes}{a dense matrix with \code{k} rows giving the
     prototypes.}
   \item{membership}{cluster membership as a matrix with \code{k}
@@ -168,10 +171,15 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
     Cybernetics}, \bold{29}/3, 433--439.
   \url{http://eprints.iisc.ernet.in/2937/1/genetic-k.pdf}.
 
+  G. Karypis (2003).
+  \emph{CLUTO: A Clustering Toolkit}.
+  Technical Report #02-017, Department of Computer Science, University
+  of Minnesota.
+  \url{http://glaros.dtc.umn.edu/gkhome/fetch/sw/cluto/manual.pdf}.
 }
 \author{
-  Kurt Hornik \email{Kurt.Hornik@wu.ac.at},
-  Ingo Feinerer \email{feinerer@logic.at},
+  Kurt Hornik \email{Kurt.Hornik@wu.ac.at}, \cr
+  Ingo Feinerer \email{feinerer@logic.at}, \cr
   Martin Kober \email{martin.kober@wu.ac.at}.
 }
 \examples{
