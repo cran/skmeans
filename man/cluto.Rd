@@ -20,11 +20,12 @@ writeCM(mat, con)
   available from \url{http://www-users.cs.umn.edu/~karypis/cluto/}.
 
   \code{readCM} reads CLUTO sparse matrices, returning a simple triplet
-  matrix (see \code{\link[slam]{simple_triplet_matrix}} in package
-  \pkg{slam} for details).
+  matrix (for more information, see
+  \code{\link[slam:matrix]{simple_triplet_matrix}} in package
+  \pkg{slam}).
 
   \code{writeCM} writes CLUTO sparse matrices.  Argument \code{mat} must
   be coercible to a simple triplet matrix via
-  \code{\link[slam]{as.simple_triplet_matrix}}.
+  \code{\link[slam:matrix]{as.simple_triplet_matrix}}.
 }
 \keyword{IO}

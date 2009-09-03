@@ -21,7 +21,7 @@
 ## problem (all w_b = 1 and m = 1), which we refer to as the "simple
 ## spherical k-means problem".  This has the criterion function
 ##   \sum_j \sum_{b in class j} d(x_b, p_j)
-##     = 2 * (B - \sum_j \sum_{b in class j} cos(x_b, p_j))
+##     = B - \sum_j \sum_{b in class j} cos(x_b, p_j)
 ## with B the number of objects, so that minimizing the dissimilarity
 ## criterion is equivalent to maximizing
 ##   \sum_j \sum_{b in class j} cos(x_b, p_j))
@@ -151,15 +151,11 @@ function(x, k, method = NULL, m = 1, weights = 1, control = list())
     ## different from the default ("simple") case.
 
     args <- list(x = x, k = k, control = control)
-    simple <- TRUE
-    if(!missing(m) && !identical(m, 1)) {
+    if(!missing(m) && !identical(m, 1))
         args <- c(args, list(m = m))
-        simple <- FALSE
-    }
-    if(!missing(weights) && !all(weights == 1)) {
-        args <- c(args, list(weights = weights))
-        simple <- FALSE
-    }
+    if(!missing(weights) && !all(weights == 1))
+        args <- c(args,
+                  list(weights = rep(weights, length.out = nrow(x))))
 
     skmeans_methods <-
         c(genetic = "genetic",
@@ -170,7 +166,7 @@ function(x, k, method = NULL, m = 1, weights = 1, control = list())
 
     if(!is.function(method)) {
         method <- if(is.null(method)) {
-            if(simple) "genetic" else "plcust"
+            if(is.null(args$m)) "genetic" else "plcust"
         } else if(is.character(method)) {
             pos <- pmatch(tolower(method),
                           tolower(names(skmeans_methods)))
@@ -191,12 +187,11 @@ function(x, k, method = NULL, m = 1, weights = 1, control = list())
                       paste(sQuote(na[ind]), collapse = " and ")))
     ## Otherwise, ensure that method gets called with "all" arguments so
     ## that it does not also have to provide defaults for these.
-    ## <FIXME>
-    ## Should we really do this?
     if(("m" %in% nf) && !("m" %in% na))
         args <- c(args, list(m = m))
     if(("weights" %in% nf) && !("weights" %in% na))
-        args <- c(args, list(weights = weights))
+        args <- c(args,
+                  list(weights = rep(weights, length.out = nrow(x))))
 
     ## Call the skmeans method.
     do.call(method, args)
@@ -238,20 +233,23 @@ function(x, k, m, weights, control)
 ### * .skmeans_genetic
 
 .skmeans_genetic <-
-function(x, k, control = NULL)
+function(x, k, weights = NULL, control = NULL)
 {
     maxiter <- control$maxiter
     if(is.null(maxiter))
         maxiter <- 12L
-    popsize <- control$popsize
-    if(is.null(popsize))
-        popsize <- 6L
     mutations <- control$mutations
     if(is.null(mutations))
         mutations <- 0.1
+    popsize <- control$popsize
+    if(is.null(popsize))
+        popsize <- 6L
     reltol <- control$reltol
     if(is.null(reltol))
         reltol <- 1e-8
+    space_for_time <- control$space_for_time
+    if(is.null(space_for_time))
+        space_for_time <- TRUE
     verbose <- control$verbose
     if(is.null(verbose))
         verbose <- getOption("verbose")
@@ -261,6 +259,24 @@ function(x, k, control = NULL)
 
     ## Normalize x.
     x <- row_normalize(x)
+
+    ## In the weighted case, optimal prototypes are the weighted sums of
+    ## the normalized objects in a class.  We can save time at the cost
+    ## of space by precomputing the weighted normalized objects as wx.
+    w <- weights
+    if(all(w == 1)) {
+        v <- nr
+        wx <- x
+        w <- NULL
+    } else {
+        v <- sum(w)
+        if(space_for_time) {
+            wx <- w * x
+            w <- NULL
+        } else {
+            wx <- x
+        }
+    }
 
     ## Initialize p.
     p <- control$start
@@ -308,21 +324,22 @@ function(x, k, control = NULL)
         ids <- ids[sel]
         p <- p[sel]
         value <- value[sel]
-        for (i in 1:popsize) {
+        for (i in seq_len(popsize)) {
             ## Generate new prototypes by mutating and k-means.
             new <- popsize + i
             ids[[new]] <- genetic_mutator(ids[[i]])
-            sums <-
-                .simple_skmeans_C_for_normalized_x(x, ids[[new]], k, nc)
+            sums <- .simple_skmeans_C_for_normalized_x(wx, ids[[new]],
+                                                       k, nc, w)
             norms <- row_norms(sums)
             if(verbose)
                 message(gettextf("Iteration: %d [KM] *** value[%d]: %g pre-optimized",
-                                iter, new, nr - sum(norms)))
+                                 iter, new, v - sum(norms)))
             repeat {
                 p[[new]] <- sums / norms
                 similarities <- g_tcrossprod(x, p[[new]])
                 ids[[new]] <- max.col(similarities)
-                sums <- .simple_skmeans_C_for_normalized_x(x, ids[[new]], k, nc)
+                sums <- .simple_skmeans_C_for_normalized_x(wx, ids[[new]],
+                                                           k, nc, w)
                 norms <- row_norms(sums)
                 oldvalue <- value[new]
                 value[new] <- sum(norms)
@@ -330,7 +347,7 @@ function(x, k, control = NULL)
             }
             if(verbose)
                 message(gettextf("Iteration: %d [KM] *** value[%d]: %g",
-                                iter, new, nr - value[new]))
+                                 iter, new, v - value[new]))
 
         }
         iter <- iter + 1L
@@ -339,7 +356,7 @@ function(x, k, control = NULL)
     ## Get ids from the winner population.
     ids <- ids[[which.max(value)]]
 
-    .simple_skmeans_object_for_normalized_x(x, ids, k, nr, nc)
+    .simple_skmeans_object_for_normalized_x(wx, ids, k, nr, nc, w, v)
 }
 
 ### * .skmeans_local_improvement_heuristic
@@ -621,16 +638,26 @@ function(x, k, control = NULL)
 
 ## In the "simple" case (m = 1, identical weights) with normalized x:
 ## * the consensus function is the sum of all objects in a group;
-## * the value is the sum of the lenghts of the consensus sums.
+## * the value is the sum of the norms of the consensus sums.
 
 ## Vectorized consensus for the simple normalized x case:
 
 .simple_skmeans_C_for_normalized_x <- 
-function(x, ids, k, nc = ncol(x))
+function(x, ids, k, nc = ncol(x), w = NULL)
 {
     out <- matrix(0, k, nc)
-    for(i in seq_len(k))
-        out[i, ] <- g_col_sums(x[ids == i, , drop = FALSE])
+    if(!is.null(w)) {
+        for(i in seq_len(k)) {
+            ## Save some space over using x <- w * x at once (which is
+            ## the whole point of keeping w separate from x).
+            out[i, ] <-
+                g_col_sums(w[ids == i] * x[ids == i, , drop = FALSE])
+        }
+    } else {
+        for(i in seq_len(k))
+            out[i, ] <-
+                g_col_sums(x[ids == i, , drop = FALSE])
+    }
     out
 }
 
@@ -655,10 +682,12 @@ function(x, k, control)
 ## Object generator for the simple normalized x case.
 
 .simple_skmeans_object_for_normalized_x <-
-function(x, ids, k, nr = nrow(x), nc = ncol(x))
+function(x, ids, k, nr = nrow(x), nc = ncol(x), w = NULL, v = NULL)
 {
-    sums <- .simple_skmeans_C_for_normalized_x(x, ids, k, nc)
+    sums <- .simple_skmeans_C_for_normalized_x(x, ids, k, nc, w)
     norms <- row_norms(sums)
+    if(is.null(v))
+        v <- if(is.null(w)) nr else sum(w)
 
     u <- clue::cl_membership(clue::as.cl_membership(ids), k)
     clue::pclust_object(prototypes = sums / norms,
@@ -666,7 +695,7 @@ function(x, ids, k, nr = nrow(x), nc = ncol(x))
                         cluster = ids,
                         family = skmeans_family,
                         m = 1,
-                        value = nr - sum(norms))
+                        value = v - sum(norms))
 }
     
 ## I2 for the simple case.
