@@ -110,6 +110,8 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
     \item{\code{colmodel}}{a specification of the CLUTO column model.
       See the CLUTO documentation for more details.}
     \item{\code{verbose}}{as for the genetic algorithm.}
+    \item{\code{control}}{a character string specifying arguments passed
+      over to the \code{vcluster} executable.}
   }
 
   Control parameters for the local improvement heuristics are as

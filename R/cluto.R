@@ -1,4 +1,4 @@
-## Author: Ingo Feinerer
+## Authors: Ingo Feinerer, Kurt Hornik
 
 ## Read in CLUTO (sparse) matrix format
 
@@ -45,17 +45,14 @@ function(mat, con)
 {
     mat <- as.simple_triplet_matrix(mat)
 
-    ## A sparse CLUTO matrix has number of rows + 1 lines
-    cm <- character(nrow(mat) + 1L)
-
     ## Generate header
-    cm[1L] <- paste(nrow(mat), ncol(mat), length(mat$v))
+    header <- paste(nrow(mat), ncol(mat), length(mat$v))
 
     ## Generate content
-    for(c in seq_along(mat$i))
-        cm[mat$i[c] + 1L] <-
-            sprintf("%s %s %s", cm[mat$i[c] + 1L], mat$j[c], mat$v[c])
+    content <- Map(function(u, v) paste(u, v, collapse = " "),
+                   split(mat$j, mat$i),
+                   split(mat$v, mat$i))
 
     ## Write out
-    writeLines(cm, con)
+    writeLines(c(header, unlist(content)), con)
 }
