@@ -213,8 +213,15 @@ function(x, k, m, weights, control)
             out <- col_sums_with_weights(x, weights)
             out / sqrt(sum(out ^ 2))
         }
-    if(!is.null(control$start))
-        control$start <- lapply(control$start, row_normalize)
+
+    if(!is.null(start <- control$start)) {
+        control$start <- if(inherits(start, "skmeans"))
+            list(row_normalize(start$prototypes))
+        else if(!is.list(start))
+            list(row_normalize(start))
+        else
+            lapply(start, row_normalize)
+    }
 
     x <- row_normalize(x)
             
@@ -227,6 +234,7 @@ function(x, k, m, weights, control)
     out$family$C <- C
     out$family$D <- D
 
+    class(out) <- unique(c("skmeans", class(out)))
     out
 }
 
@@ -280,7 +288,9 @@ function(x, k, weights = NULL, control = NULL)
 
     ## Initialize p.
     p <- control$start
-    if(!is.list(p)) {
+    if(inherits(p, "skmeans")) {
+        p <- list(row_normalize(p$prototypes))
+    } else if(!is.list(p)) {
         ## Initialize p by choosing k random rows of x.
         ## (Hence initial prototypes are already normalized.)
         p <- replicate(popsize,
@@ -288,7 +298,9 @@ function(x, k, weights = NULL, control = NULL)
                        simplify = FALSE)
     }
     ## Initialize ids.
-    ids <- lapply(p, function(p1) max.col(g_tcrossprod(x, p1)))
+    ids <- lapply(p,
+                  function(p1)
+                  ids_from_similarities(g_tcrossprod(x, p1), k))
     
     if(verbose)
         message(gettextf("Initial solutions created (length: %d)",
@@ -337,13 +349,14 @@ function(x, k, weights = NULL, control = NULL)
             repeat {
                 p[[new]] <- sums / norms
                 similarities <- g_tcrossprod(x, p[[new]])
-                ids[[new]] <- max.col(similarities)
+                ids[[new]] <- ids_from_similarities(similarities, k)
                 sums <- .simple_skmeans_C_for_normalized_x(wx, ids[[new]],
                                                            k, nc, w)
                 norms <- row_norms(sums)
                 oldvalue <- value[new]
                 value[new] <- sum(norms)
-                if(!is.na(oldvalue) && value[new] < oldvalue + reltol) break
+                if(!is.na(oldvalue) && 
+                    abs(oldvalue - value[new]) < reltol*(oldvalue + reltol)) break
             }
             if(verbose)
                 message(gettextf("Iteration: %d [KM] *** value[%d]: %g",
@@ -388,10 +401,7 @@ function(x, k, control = NULL)
     iter <- 1L
     while(iter <= maxiter) {
         similarities <- g_tcrossprod(x, p)
-        ids <- max.col(similarities)
-        ## <FIXME>
-        ## Make sure that we have no empty clusters.
-        ## </FIXME>
+        ids <- ids_from_similarities(similarities, k)
         ## New prototypes.
         sums <- .simple_skmeans_C_for_normalized_x(x, ids, k, nc)
         norms <- row_norms(sums)
@@ -433,8 +443,8 @@ function(x, k, control = NULL)
                 if(verbose)
                     message(gettextf("Moving %d from cluster %d to %d.",
                                      o, i, j))
-                p[i, ] <- (sums[i, ] - x[o, ]) / new_norms_rem[o]
-                p[j, ] <- (sums[j, ] + x[o, ]) / new_norms_add[o, j]
+                p[i, ] <- (sums[i, ] - c(x[o, ])) / new_norms_rem[o]
+                p[j, ] <- (sums[j, ] + c(x[o, ])) / new_norms_add[o, j]
                 new_value <- new_value + Delta_Q[pos]
                 if(verbose)
                     message(gettextf("Iteration: %d [FV %d] *** value: %g",
@@ -493,10 +503,7 @@ function(x, k, control = NULL)
     iter <- 1L
     while(iter <= maxiter) {
         similarities <- g_tcrossprod(x, p)
-        ids <- max.col(similarities)
-        ## <FIXME>
-        ## Make sure that we have no empty clusters.
-        ## </FIXME>
+        ids <- ids_from_similarities(similarities, k)
         ## New prototypes.
         sums <- .simple_skmeans_C_for_normalized_x(x, ids, k, nc)
         norms <- row_norms(sums)
@@ -549,8 +556,8 @@ function(x, k, control = NULL)
                     if(verbose)
                         message(gettextf("Moving %d from cluster %d to %d.",
                                          o, i, j))
-                    p[i, ] <- (sums[i, ] - x[o, ]) / new_norms_rem[o]
-                    p[j, ] <- (sums[j, ] + x[o, ]) / new_norms_add[o, j]
+                    p[i, ] <- (sums[i, ] - c(x[o, ])) / new_norms_rem[o]
+                    p[j, ] <- (sums[j, ] + c(x[o, ])) / new_norms_add[o, j]
                     change <- Delta_Q[pos] + change
                     if(verbose)
                         message(gettextf("Iteration: %d [FV %d, CH %d] *** value: %g change: %g",
@@ -590,7 +597,7 @@ function(x, k, control = NULL)
     }
 
     ## Fix ids from chain evaluation.
-    ids <- max.col(g_tcrossprod(x, p))
+    ids <- ids_from_similarities(g_tcrossprod(x, p), k)
 
     .simple_skmeans_object_for_normalized_x(x, ids, k, nr, nc)
 }
@@ -615,6 +622,8 @@ function(x, k, control = NULL)
     verbose <- control$verbose
     if(is.null(verbose))
         verbose <- getOption("verbose")
+    ## Could add more fancy control list expansion eventually.
+    control <- paste(as.character(control$control), collapse = " ")
 
     datfile <- tempfile()
     clustfile <- paste(datfile, ".clustering.", k, sep = "")
@@ -622,8 +631,9 @@ function(x, k, control = NULL)
     
     writeCM(x, datfile)
     cmdout <-
-        system(sprintf("%s -colmodel=%s -clustfile=%s %s %d",
-                       vcluster, colmodel, clustfile, datfile, k),
+        system(sprintf("%s -colmodel=%s -clustfile=%s %s %s %d",
+                       vcluster, colmodel, clustfile, control,
+                       datfile, k),
                intern = TRUE)
     if(verbose)
         message(paste(cmdout, collapse = "\n"))
@@ -645,19 +655,22 @@ function(x, k, control = NULL)
 .simple_skmeans_C_for_normalized_x <- 
 function(x, ids, k, nc = ncol(x), w = NULL)
 {
-    out <- matrix(0, k, nc)
+    ## Only compute prototypes for used ids.
+    all_ids_used <- sort(unique(ids))
+    out <- matrix(0, length(all_ids_used), nc)
     if(!is.null(w)) {
-        for(i in seq_len(k)) {
+        for(i in all_ids_used) {
             ## Save some space over using x <- w * x at once (which is
             ## the whole point of keeping w separate from x).
             out[i, ] <-
                 g_col_sums(w[ids == i] * x[ids == i, , drop = FALSE])
         }
     } else {
-        for(i in seq_len(k))
+        for(i in all_ids_used)
             out[i, ] <-
                 g_col_sums(x[ids == i, , drop = FALSE])
     }
+    rownames(out) <- all_ids_used
     out
 }
 
@@ -667,14 +680,18 @@ function(x, ids, k, nc = ncol(x), w = NULL)
 function(x, k, control)
 {
     p <- control$start
-    ## In case this is a list:
-    if(is.list(p))
-        p <- p[[1L]]
-    ## In case this got us nowhere:
-    if(is.null(p)) {
-        ## Initialize p by choosing k random rows of x.
-        ## (Hence initial prototypes are already normalized.)
-        p <- as.matrix(x[sample.int(nrow(x), k), , drop = FALSE])
+    if(inherits(p, "skmeans")) {
+        p <- p$prototypes
+    } else {
+        ## In case this is a list:
+        if(is.list(p))
+            p <- p[[1L]]
+        ## In case this got us nowhere:
+        if(is.null(p)) {
+            ## Initialize p by choosing k random rows of x.
+            ## (Hence initial prototypes are already normalized.)
+            p <- as.matrix(x[sample.int(nrow(x), k), , drop = FALSE])
+        }
     }
     p
 }
@@ -690,12 +707,14 @@ function(x, ids, k, nr = nrow(x), nc = ncol(x), w = NULL, v = NULL)
         v <- if(is.null(w)) nr else sum(w)
 
     u <- clue::cl_membership(clue::as.cl_membership(ids), k)
-    clue::pclust_object(prototypes = sums / norms,
-                        membership = u,
-                        cluster = ids,
-                        family = skmeans_family,
-                        m = 1,
-                        value = v - sum(norms))
+    out <- clue::pclust_object(prototypes = sums / norms,
+                               membership = u,
+                               cluster = ids,
+                               family = skmeans_family,
+                               m = 1,
+                               value = v - sum(norms))
+    class(out) <- unique(c("skmeans", class(out)))
+    out
 }
     
 ## I2 for the simple case.
@@ -725,15 +744,34 @@ function(x)
 col_sums_with_weights <-
 function(x, w)
 {
-    if(inherits(x, "dgCMatrix")) {
-        ## Should no longer be necessary, but faster this way (other
-        ## sparse matrix classes could be dealt with similarly ...).
+    ## Improve performance by leaving out Ops dispatch.
+    ## (Other sparse matrix classes could be dealt with similarly ...)
+    if(inherits(x, "simple_triplet_matrix")) {
+        x$v <- x$v * w[x$i]
+        slam:::colSums.simple_triplet_matrix(x)
+    } else if(inherits(x, "dgCMatrix")) {
         x@x <- x@x * w[x@i + 1L]
         Matrix::colSums(x)
     }
     else
         g_col_sums(w * x)
 }
+
+ids_from_similarities <-
+function(x, k)
+{
+    ids <- max.col(x)
+    all_ids_used <- sort(unique(ids))
+    if(length(all_ids_used) < k) {
+        ## Assign objects with the smallest similarities to their own
+        ## cluster.
+        o <- order(x[cbind(seq_along(ids), ids)])
+        unused <- setdiff(seq_len(k), all_ids_used)
+        ids[o[seq_along(unused)]] <- unused
+    }
+    ids
+}
+
 
 ### Local variables: ***
 ### mode: outline-minor ***
