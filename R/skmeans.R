@@ -61,7 +61,7 @@ function(x, y = NULL)
     base::tcrossprod(x, y)
 g_tcrossprod.simple_triplet_matrix <-
 function(x, y = NULL)
-    slam::tcrossprod.simple_triplet_matrix(x, y)
+    slam::tcrossprod_simple_triplet_matrix(x, y)
 g_tcrossprod.dgCMatrix <-
 function(x, y = NULL)
     Matrix::tcrossprod(x, y)
@@ -80,7 +80,7 @@ function(x, na.rm = FALSE, dims = 1, ...)
     UseMethod("g_row_sums")
 g_row_sums.simple_triplet_matrix <-
 function(x, na.rm = FALSE, dims = 1, ...)     
-    slam:::rowSums.simple_triplet_matrix(x, na.rm = na.rm,
+    slam:::row_sums.simple_triplet_matrix(x, na.rm = na.rm,
                                          dims = dims, ...)
 g_row_sums.default <-
 function(x, na.rm = FALSE, dims = 1, ...)
@@ -97,7 +97,7 @@ function(x, na.rm = FALSE, dims = 1, ...)
     UseMethod("g_col_sums")
 g_col_sums.simple_triplet_matrix <-
 function(x, na.rm = FALSE, dims = 1, ...)
-    slam:::colSums.simple_triplet_matrix(x, na.rm = na.rm,
+    slam:::col_sums.simple_triplet_matrix(x, na.rm = na.rm,
                                          dims = dims, ...)
 g_col_sums.default <-
 function(x, na.rm = FALSE, dims = 1, ...)
@@ -748,7 +748,7 @@ function(x, w)
     ## (Other sparse matrix classes could be dealt with similarly ...)
     if(inherits(x, "simple_triplet_matrix")) {
         x$v <- x$v * w[x$i]
-        slam:::colSums.simple_triplet_matrix(x)
+        slam:::col_sums.simple_triplet_matrix(x)
     } else if(inherits(x, "dgCMatrix")) {
         x@x <- x@x * w[x@i + 1L]
         Matrix::colSums(x)
