@@ -667,8 +667,7 @@ function(x, ids, k, nc = ncol(x), w = NULL)
         }
     } else {
         for(i in all_ids_used)
-            out[i, ] <-
-                g_col_sums(x[ids == i, , drop = FALSE])
+            out[i, ] <- col_sums_with_logical_index(x, ids == i)
     }
     rownames(out) <- all_ids_used
     out
@@ -755,6 +754,22 @@ function(x, w)
     }
     else
         g_col_sums(w * x)
+}
+
+col_sums_with_logical_index <-
+function(x, l)
+{
+    ## Improve performance by leaving out Ops dispatch.
+    ## (Other sparse matrix classes could be dealt with similarly ...)
+    if(inherits(x, "simple_triplet_matrix")) {
+        x$v <- x$v * l[x$i]
+        slam:::col_sums.simple_triplet_matrix(x)
+    } else if(inherits(x, "dgCMatrix")) {
+        x@x <- x@x * l[x@i + 1L]
+        Matrix::colSums(x)
+    }
+    else
+        g_col_sums(x[l, , drop = FALSE])
 }
 
 ids_from_similarities <-
