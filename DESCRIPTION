@@ -1,7 +1,7 @@
 Package: skmeans
 Type: Package
 Title: Spherical k-Means Clustering
-Version: 0.1-4
+Version: 0.1-5
 Author: Kurt Hornik, Ingo Feinerer, Martin Kober
 Maintainer: Kurt Hornik <Kurt.Hornik@R-project.org>
 Description: Algorithms to compute spherical k-means partitions.
@@ -11,6 +11,6 @@ Description: Algorithms to compute spherical k-means partitions.
 License: GPL-2
 Imports: slam (>= 0.1-9), clue (>= 0.3-32)
 Enhances: Matrix
-Packaged: 2010-01-11 18:28:37 UTC; hornik
+Packaged: 2010-06-23 14:25:59 UTC; hornik
 Repository: CRAN
-Date/Publication: 2010-01-11 18:31:00
+Date/Publication: 2010-06-24 08:24:27

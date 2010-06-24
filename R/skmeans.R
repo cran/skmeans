@@ -146,6 +146,9 @@ skmeans_family <-
 skmeans <-
 function(x, k, method = NULL, m = 1, weights = 1, control = list())
 {
+    if(!all(row_norms(x) > 0))
+        stop("Zero rows are not allowed.")
+    
     ## Methods must at least have formals x, k and control.
     ## Try to ensure that formals m and weights are only used if
     ## different from the default ("simple") case.
