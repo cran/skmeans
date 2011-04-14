@@ -986,7 +986,7 @@ function(x, k, control = NULL)
     if (is.null(ifile)) {
         datfile <- tmp
         on.exit(file.remove(datfile))
-        writeCM(x, datfile)
+        write_stm_CLUTO(x, datfile)
     }
     else
         datfile <- ifile
@@ -1044,7 +1044,7 @@ function(x, k, control = NULL)
                             sprintf("%s_row_ccs", datfile),
                             sprintf("%s_tfn_nz", datfile)),
                 add = TRUE)
-        writeGM(x, datfile)
+        slam:::write_stm_MC(x, datfile)
     }
     else
         datfile <- ifile

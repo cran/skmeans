@@ -5,7 +5,7 @@
   Partition given vectors \eqn{x_b} by minimizing the spherical
   \eqn{k}-means criterion
   \eqn{\sum_{b,j} w_b u_{bj}^m d(x_b, p_j)}
-  over memberships and protoypes,
+  over memberships and prototypes,
   where the \eqn{w_b} are case weights,
   \eqn{u_{bj}} is the membership of \eqn{x_b} to class \eqn{j},
   \eqn{p_j} is the \emph{prototype} of class \eqn{j}
@@ -236,10 +236,8 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
 }
 \examples{
 ## Use CLUTO dataset 're0':
-x <- readCM(system.file("cluto", "re0.mat",
-                        package = "skmeans"),
-            system.file("cluto", "re0.mat.clabel",
-                        package = "skmeans"))
+x <- slam::read_stm_CLUTO(system.file("cluto", "re0.mat",
+                                      package = "skmeans"))
 ## Which is not really small:
 dim(x)
 ## Partition into 5 clusters.
@@ -247,9 +245,7 @@ party <- skmeans(x, 5, control = list(verbose = TRUE))
 ## Criterion value obtained:
 party$value
 ## Compare with "true" classifications:
-class_ids <-
-    readLines(system.file("cluto", "re0.mat.rclass",
-                          package = "skmeans"))
+class_ids <- attr(x, "rclass")
 table(class_ids, party$cluster)
 }
 \keyword{cluster}

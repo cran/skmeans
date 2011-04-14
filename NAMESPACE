@@ -1,6 +1,6 @@
 import("clue", "slam")
 
-export("readCM", "skmeans", "writeCM")
+export("skmeans")
 
 S3method("g_tcrossprod", "default")
 S3method("g_tcrossprod", "simple_triplet_matrix")
