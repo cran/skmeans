@@ -1,15 +1,18 @@
 Package: skmeans
 Type: Package
 Title: Spherical k-Means Clustering
-Version: 0.1-8
-Author: Kurt Hornik, Ingo Feinerer, Martin Kober
-Maintainer: Kurt Hornik <Kurt.Hornik@R-project.org>
+Version: 0.2-0
+Authors@R: c(person("Kurt", "Hornik", role = c("aut", "cre"), email =
+        "Kurt.Hornik@R-project.org"), person("Ingo", "Feinerer", role =
+        "aut"), person("Martin", "Kober", role = "aut"))
 Description: Algorithms to compute spherical k-means partitions.
         Features several methods, including a genetic and a fixed-point
         algorithm and an interface to the CLUTO vcluster program.
 License: GPL-2
-Imports: slam (>= 0.1-22), clue (>= 0.3-39)
+Imports: slam (>= 0.1-22), clue (>= 0.3-39), cluster
 Enhances: Matrix, kmndirs
-Packaged: 2011-04-14 16:57:24 UTC; hornik
+Packaged: 2011-10-25 06:44:30 UTC; hornik
+Author: Kurt Hornik [aut, cre], Ingo Feinerer [aut], Martin Kober [aut]
+Maintainer: Kurt Hornik <Kurt.Hornik@R-project.org>
 Repository: CRAN
-Date/Publication: 2011-04-15 06:29:08
+Date/Publication: 2011-10-25 07:15:14

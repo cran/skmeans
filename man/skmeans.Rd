@@ -23,7 +23,9 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
     \link[slam:matrix]{simple triplet matrix}
     (package \pkg{slam}), or a
     \link[Matrix:dgTMatrix-class]{dgTMatrix}
-    (package \pkg{Matrix}).}
+    (package \pkg{Matrix}).
+    Zero rows are not allowed.
+  }
   \item{k}{an integer giving the number of classes to be used in the
     partition.}
   \item{method}{a character string specifying one of the built-in
@@ -37,7 +39,7 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
     partition (as the \dQuote{fuzzification parameter} of the fuzzy
     \eqn{c}-means algorithm).  The default value of 1 corresponds to
     hard partitions; values greater than one give partitions of
-    increasing softness obtained from a generalized fuzzy spherical
+    increasing softness obtained from a generalized soft spherical
     \eqn{k}-means problem.}
   \item{weights}{a numeric vector of non-negative case weights.
     Recycled to the number of objects given by \code{x} if necessary.}
@@ -165,6 +167,10 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   executable is available.  CLUTO binaries for the Linux, Sun, OSX, and
   MS Windows platforms can be downloaded from
   \url{http://www-users.cs.umn.edu/~karypis/cluto/}.
+  If the executable cannot be found in the system path via
+  \code{\link{Sys.which}("vcluster")} (i.e., named differently or not
+  made available in the system path), its (full) path must be specified
+  in control option \code{vcluster}.
 
   Method \code{"gmeans"} requires that the \code{gmeans} executable is
   available.
@@ -173,6 +179,10 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   \url{http://www.dataminingresearch.com/index.php/2010/06/gmeans-clustering-software-compatible-with-gcc-4};
   original sources can be obtained from
   \url{http://userweb.cs.utexas.edu/users/dml/Software/gmeans.html};
+  If the executable cannot be found in the system path via
+  \code{\link{Sys.which}("gmeans")} (i.e., named differently or not
+  made available in the system path), its (full) path must be specified
+  in control option \code{vcluster}.
   
   Method \code{"kmndirs"} requires package \pkg{kmndirs} (currently, not
   available from CRAN), which provides an R interface to a suitable
@@ -198,6 +208,19 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   \item{cluster}{the class ids of the closest hard partition (the
     partition itself if \eqn{m = 1}).}
   \item{value}{the value of the criterion.}
+
+  Objects representing spherical \eqn{k}-means partitions have special
+  methods for \code{\link{print}},
+  \code{\link[clue]{cl_validity}} (providing the \dQuote{dissimilarity
+    accounted for}) from package \pkg{clue},
+  and
+  \code{\link[cluster]{silhouette}} from package \pkg{cluster} (the
+  latter two take advantage of the special structure of the cosine
+  distance to avoid computing full object-by-object distance matrices,
+  and hence also perform well for large data sets).
+
+  Package \pkg{clue} provides additional methods for objects inheriting
+  from class \code{pclust}, see the examples.
 }
 \references{
   I. S. Dhillon and D. S. Modha (2001).
@@ -235,17 +258,51 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   Martin Kober \email{martin.kober@wu.ac.at}.
 }
 \examples{
-## Use CLUTO dataset 're0':
+set.seed(1234)
+
+## Use CLUTO dataset 're0' and the reader for CLUTO sparse matrix
+## format in package 'slam'.  (In text clustering applications, x will
+## often be a DocumentTermMatrix object obtained from package 'tm'.)
 x <- slam::read_stm_CLUTO(system.file("cluto", "re0.mat",
                                       package = "skmeans"))
 ## Which is not really small:
 dim(x)
-## Partition into 5 clusters.
-party <- skmeans(x, 5, control = list(verbose = TRUE))
+
+## Hard partition into 5 clusters.
+hparty <- skmeans(x, 5, control = list(verbose = TRUE))
 ## Criterion value obtained:
-party$value
+hparty$value
 ## Compare with "true" classifications:
 class_ids <- attr(x, "rclass")
-table(class_ids, party$cluster)
+table(class_ids, hparty$cluster)
+## (Note that there are actually 10 "true" classes.)
+
+## Plot the silhouette information for the obtained partition.
+require("cluster")
+plot(silhouette(hparty))
+## Clearly, cluster 3 is "best", and cluster 5 needs splitting.
+
+## Soft partition into 5 clusters.
+sparty <- skmeans(x, 5, m = 1.1,
+                  control = list(nruns = 5, verbose = TRUE))
+## Criterion value obtained:
+sparty$value
+## (This should be a lower bound for the criterion value of the hard
+## partition.)
+
+## Compare the soft and hard partitions:
+table(hparty$cluster, sparty$cluster)
+## Or equivalently using the high-level accessors from package 'clue':
+require("clue")
+table(cl_class_ids(hparty), cl_class_ids(sparty))
+## Which can also be used for computing agreement/dissimilarity measures
+## between the obtained partitions.
+cl_agreement(hparty, sparty, "Rand")
+
+## How fuzzy is the obtained soft partition?
+cl_fuzziness(sparty)
+## And in fact, looking at the membership margins we see that the
+## "sureness" of classification is rather high:
+summary(cl_margin(sparty))
 }
 \keyword{cluster}
