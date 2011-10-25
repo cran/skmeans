@@ -1,6 +1,12 @@
 import("clue", "slam")
+importFrom("cluster", "silhouette")
 
-export("skmeans")
+export("skmeans", "skmeans_xdist")
+
+S3method("print", "skmeans")
+
+S3method("cl_validity", "skmeans")
+S3method("silhouette", "skmeans")
 
 S3method("g_tcrossprod", "default")
 S3method("g_tcrossprod", "simple_triplet_matrix")
@@ -20,3 +26,5 @@ S3method("g_crossprod", "default")
 S3method("g_crossprod", "simple_triplet_matrix")
 S3method("g_crossprod", "dgCMatrix")
 S3method("g_crossprod", "dgTMatrix")
+
+

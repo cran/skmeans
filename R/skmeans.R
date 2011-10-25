@@ -30,13 +30,8 @@
 ## All built-in standard spherical k-means methods internally use I2 but
 ## report the value of the corresponding dissimilarity criterion.
 
-### * skmeans_family
+### * Infrastructure
 
-## In the skmeans family object, we provide the "correct" cosine
-## dissimilarity between objects and prototypes, irrespective of
-## possible normalization.  For the methods, we internally always
-## normalize objects and prototypes and hence use faster D and C
-## functions.
 ## Prototypes are always represented by a dense matrix.
 ## Objects can be represented by dense matrices or sparse matrices
 ## provided that the following matrix computations work for these:
@@ -147,11 +142,29 @@ g_crossprod.dgTMatrix <-
 function(x, y = NULL)
     Matrix::crossprod(x, y)
 
+### * skmeans_xdist
+
+skmeans_xdist <-
+function(x, y = NULL)
+{
+    x <- row_normalize(x)
+    if(!is.null(y))
+        y <- row_normalize(y)
+    pmax(1 - g_tcrossprod(x, y), 0)
+}
+
+### * skmeans_family
+
+## In the skmeans family object, we provide the "correct" cosine
+## dissimilarity between objects and prototypes, irrespective of
+## possible normalization.  For the methods, we internally always
+## normalize objects and prototypes and hence use faster D and C
+## functions.
+
 skmeans_family <-
     clue::pclust_family(D =
                         function(x, prototypes) {
-                            1 - g_tcrossprod(row_normalize(x),
-                                             row_normalize(prototypes))
+                            skmeans_xdist(x, prototypes)
                         },
                         C =
                         function(x, weights, control) {
@@ -184,6 +197,8 @@ skmeans_family <-
 skmeans <-
 function(x, k, method = NULL, m = 1, weights = 1, control = list())
 {
+    mc <- match.call()
+    
     if(!all(row_norms(x) > 0))
         stop("Zero rows are not allowed.")
 
@@ -241,7 +256,118 @@ function(x, k, method = NULL, m = 1, weights = 1, control = list())
                   list(weights = rep(weights, length.out = nrow(x))))
 
     ## Call the skmeans method.
-    do.call(method, args)
+    y <- do.call(method, args)
+    ## Record the original call.
+    y$call <- mc
+
+    y
+}
+
+### * skmeans methods
+
+print.skmeans <-
+function(x, ...)
+{
+    ids <- x$cluster
+    m <- x$m
+    tab <- table(ids)
+    sizes <- paste(tab, collapse = ", ")
+    txt <- if(m == 1) {
+        c(gettextf("A hard spherical k-means partition of %d objects into %d classes.", 
+                 length(ids), length(tab)),
+          gettextf("Class sizes: %s", sizes))
+    } else {
+        c(gettextf("A soft spherical k-means partition (degree m = %f) of %d objects into %d classes.",
+                   m, length(ids), length(tab)),
+          gettextf("Class sizes of closest hard partition: %s.",
+                   sizes))
+    }
+    writeLines(strwrap(txt))
+    cat("Call: ", paste(deparse(x$call), collapse = "\n"), "\n",
+        sep = "")
+    invisible(x)
+}
+
+cl_validity.skmeans <-
+function(x, data = NULL, ...)
+{
+    ## Dissimilarity accounted for by spherical k-means partitions.
+
+    ## If the original data matrix is not given, try to obtain it from
+    ## the orginal skmeans() call.
+    if(is.null(data))
+        data <- eval(x$call$x, parent.frame())
+
+    data <- row_normalize(data)
+
+    n <- nrow(data)
+
+    v <- if(x$m == 1) {
+        ## Hard partitions.
+        ids <- factor(x$cluster)
+        sizes <- table(ids)
+        k <- length(sizes)
+
+        sums <- g_col_sums_by_group(data, ids)
+        
+        1 - ((1 - sum(sums ^ 2) / sum(sizes ^ 2)) /
+             (1 - sum(g_col_sums(data) ^ 2) / n ^ 2))
+    } else {
+        ## Soft partitions.
+        M <- cl_membership(x)
+
+        sums <- g_crossprod(M, data)
+
+        1 - ((1 - sum(sums ^ 2) / sum(colSums(M) ^ 2)) /
+             (1 - sum(g_col_sums(data) ^ 2) / n ^ 2))
+    }
+
+    out <- list("Dissimilarity accounted for" = v)
+    class(out) <- "cl_validity"
+
+    out
+}
+
+silhouette.skmeans <-
+function(x, data = NULL, ...)
+{
+    mc <- match.call()
+
+    ## If the original data matrix is not given, try to obtain it from
+    ## the orginal skmeans() call.
+    if(is.null(data))
+        data <- eval(x$call$x, parent.frame())
+
+    data <- row_normalize(data)
+
+    n <- nrow(data)
+
+    ids <- factor(x$cluster)
+    sizes <- table(ids)
+    k <- length(sizes)
+
+    sums <- g_col_sums_by_group(data, ids)
+
+    ind <- cbind(seq_len(n), ids)
+    numers <- denoms <- matrix(rep.int(sizes, rep.int(n, k)), n, k)
+    denoms[ind] <- sizes[ids] - 1L
+
+    aves <- (numers - g_tcrossprod(data, sums)) / denoms
+
+    a <- aves[ind]
+    aves[ind] <- Inf
+    neighbor <- max.col(-aves)
+    b <- aves[cbind(seq_len(n), neighbor)]
+    s <- (b - a) / pmax(a, b)
+    s[is.nan(s)] <- 0
+
+    wds <- cbind(cluster = ids, niehgbor = neighbor, sil_width = s)
+    rownames(wds) <- names(ids)
+    attr(wds, "Ordered") <- FALSE
+    attr(wds, "call") <- mc
+    class(wds) <- "silhouette"
+
+    wds
 }
 
 ### * .skmeans_pclust
@@ -511,7 +637,7 @@ function(x, k, m, weights = 1, control = NULL)
         iter <- 1L
         while(iter <= maxiter) {
             ## Fixed point iteration.
-            dissimilarities <- 1 - g_tcrossprod(x, p)
+            dissimilarities <- pmax(1 - g_tcrossprod(x, p), 0)
             ## New memberhips.
             u <- clue:::.memberships_from_cross_dissimilarities(dissimilarities,
                                                                 m)
@@ -575,7 +701,7 @@ function(x, k, m, weights = 1, control = NULL)
     ## Internally, we always keep x and prototypes normalized.
     .D_for_normalized_x_and_prototypes <-
         function(x, prototypes)
-            1 - g_tcrossprod(x, prototypes)
+            pmax(1 - g_tcrossprod(x, prototypes), 0)
     .C_for_normalized_x_and_prototypes <-
         function(x, weights, control) {
             out <- g_col_sums_with_weights(x, weights)
