@@ -99,7 +99,9 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
       prototype matrices, or a list of class ids.  For the genetic
       algorithm, the given starting values are used as the initial
       population; the fixed-point algorithm is applied individually to
-      each starting value, and the best solution found is returned.}
+      each starting value, and the best solution found is returned.
+      Defaults to randomly picking objects as prototypes.
+    }
     \item{\code{reltol}}{The minimum relative improvement per
       iteration.  If improvement is less, the algorithm will stop under
       the assumption that no further significant improvement can be
@@ -164,10 +166,10 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   }
 
   Method \code{"CLUTO"} requires that the CLUTO \code{vcluster}
-  executable is available.  CLUTO binaries for the Linux, Sun, OSX, and
-  MS Windows platforms can be downloaded from
-  \url{http://www-users.cs.umn.edu/~karypis/cluto/}.
-  If the executable cannot be found in the system path via
+  executable is available.  CLUTO binaries for the Linux, SunOS, Mac OS
+  X, and MS Windows platforms can be downloaded from
+  \url{http://www-users.cs.umn.edu/~karypis/cluto/}.  If the executable
+  cannot be found in the system path via
   \code{\link{Sys.which}("vcluster")} (i.e., named differently or not
   made available in the system path), its (full) path must be specified
   in control option \code{vcluster}.
@@ -184,11 +186,12 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   made available in the system path), its (full) path must be specified
   in control option \code{vcluster}.
   
-  Method \code{"kmndirs"} requires package \pkg{kmndirs} (currently, not
-  available from CRAN), which provides an R interface to a suitable
-  modification of the C code for the \eqn{k}-mean-directions algorithm
-  made available as supplementary material to Maitra & Ramler (2010) at
-  \url{http://pubs.amstat.org/doi/suppl/10.1198/jcgs.2009.08155}. 
+  Method \code{"kmndirs"} requires package \pkg{kmndirs} (available from
+  \url{http://R-Forge.R-project.org/projects/kmndirs}), which provides
+  an R interface to a suitable modification of the C code for the
+  \eqn{k}-mean-directions algorithm made available as supplementary
+  material to Maitra & Ramler (2010) at
+  \url{http://pubs.amstat.org/doi/suppl/10.1198/jcgs.2009.08155}.
   
   User-defined methods must have formals \code{x}, \code{k} and
   \code{control}, and optionally may have formals \code{weights} 

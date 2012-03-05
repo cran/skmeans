@@ -1,8 +1,8 @@
-af5285c93e3b25626ad76a43554eb538 *DESCRIPTION
+e65179817d6075a839f9dd79e41800ab *DESCRIPTION
 e13c11cb4a6009ff69e11ef08291dad6 *NAMESPACE
 fd5a17a2c0c323138efe1a068d530545 *R/skmeans.R
 4bf299b3d7a42a40aa46fa3773e4a606 *inst/cluto/re0.mat
 bc5acc140caebdc0da48ab4422942ba0 *inst/cluto/re0.mat.clabel
 a07112ae60297b2991a90cf8254a9148 *inst/cluto/re0.mat.rclass
-ea2f3de03eed4d33be07b961597a1074 *man/skmeans.Rd
+eee8a646ee8e969bb2a56a2b793c1005 *man/skmeans.Rd
 42f61a5c229119188f1d55a0097621ea *man/skmeans_xdist.Rd
