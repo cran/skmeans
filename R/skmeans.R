@@ -383,10 +383,11 @@ function(x, k, m = 1, weights = 1, control = NULL)
         nruns <- control$nruns
         if(is.null(nruns))
             nruns <- 1L
-        start <- rep.int("p", nruns)
-    }
-    control$start <-
-        .skmeans_init_for_normalized_x(x, k, start, weights)
+        start <- as.list(rep.int("p", nruns))
+    } else if(!is.list(start) || inherits(start, "skmeans"))
+        start <- list(start)
+    
+    control$start <- start
     control$nruns <- NULL
 
     if(m == 1)
@@ -419,9 +420,6 @@ function(x, k, weights = 1, control = NULL)
     nr <- nrow(x)
     nc <- ncol(x)
 
-    ## Normalization of x already performed in .skmeans_pclust().
-    ##   x <- row_normalize(x)
-
     ## In the weighted case, we can perform all computations on w_i x_i
     ## (after normalization).  For first variation moves, we need w_i^2.
     if(all(weights == 1)) {
@@ -446,7 +444,7 @@ function(x, k, weights = 1, control = NULL)
         message(gettextf("Pclust run: %d", run))
 
     repeat {
-        p <- start[[run]]
+        p <- .skmeans_init_for_normalized_x(x, k, start[[run]], weights)
         old_value <- 0
         iter <- 1L
         while(iter <= maxiter) {
@@ -632,7 +630,7 @@ function(x, k, m, weights = 1, control = NULL)
         message(gettextf("Pclust run: %d", run))
 
     repeat {
-        p <- start[[run]]
+        p <- .skmeans_init_for_normalized_x(x, k, start[[run]], weights)
         old_value <- Inf
         iter <- 1L
         while(iter <= maxiter) {
@@ -766,8 +764,12 @@ function(x, k, weights = NULL, control = NULL)
     ## Initialize p.
     start <- control$start
     if(is.null(start))
-        start <- rep.int("p", popsize)
-    p <- .skmeans_init_for_normalized_x(x, k, start)
+        start <- as.list(rep.int("p", popsize))
+    else if(!is.list(start) || inherits(start, "skmeans"))
+        start <- list(start)
+    p <- lapply(start,
+                function(s)
+                .skmeans_init_for_normalized_x(x, k, s))
     popsize <- length(p)
     
     ## Initialize ids.
@@ -1272,66 +1274,36 @@ function(x, k, control)
 function(x, k, start, weights = 1)
 {
     if(is.character(start)) {
-        if(any(is.na(match(start, c("p", "i", "S", "s")))))
-            stop(gettextf("Invalid control option 'start'"))
-        out <- vector("list", length(start))
-        pos <- which(start == "p")
-        if(length(pos)) {
-            out[pos] <-
-                replicate(length(pos), {
-                    ## Initialize prototypes by choosing k random
-                    ## rows of x.  (Hence prototypes are already
-                    ## normalized.)
-                    as.matrix(x[sample.int(nrow(x), k), , drop =
-                                FALSE])
-                },
-                          simplify = FALSE)
+        if(start == "p") {
+            ## Initialize prototypes by choosing k random rows of x.
+            ## (Hence prototypes are already normalized.)
+            as.matrix(x[sample.int(nrow(x), k), , drop = FALSE])
         }
-        pos <- which(start == "i")
-        if(length(pos)) {
-            out[pos] <-
-                replicate(length(pos), {
-                    ## Initialize by choosing random ids.
-                    ids <- sample.int(k, nrow(x), replace = TRUE)
-                    ## Could ensure that all ids are used.
-                    .hard_skmeans_C_for_normalized_x(x, ids)
-                },
-                          simplify = FALSE)
+        else if(start == "i") {
+            ## Initialize by choosing random ids.
+            ids <- sample.int(k, nrow(x), replace = TRUE)
+            ## Could ensure that all ids are used.
+            .hard_skmeans_C_for_normalized_x(x, ids)
         }
-        pos <- which(start == "S")
-        if(length(pos)) {
+        else if(start == "S") {
             p1 <- row_normalize(rbind(g_col_sums(weights * x)))
-            out[pos] <-
-                rep.int(list(.skmeans_init_helper(x, k, p1)),
-                        length(pos))
+            .skmeans_init_helper(x, k, p1)
         }
-        pos <- which(start == "s")
-        if(length(pos)) {
-            out[pos] <-
-                replicate(length(pos),
-                          .skmeans_init_helper(x, k,
-                                               x[sample.int(nrow(x), 1L), ,
-                                                 drop = FALSE]),
-                          simplify = FALSE)
+        else if(start == "s") {
+            p1 <- x[sample.int(nrow(x), 1L), , drop = FALSE]
+            .skmeans_init_helper(x, k, p1)
         }
-        out
-    } else if(inherits(start, "skmeans")) {
-        list(row_normalize(start$prototypes))
-    } else {
-        if(!is.list(start))
-            start <- list(start)
-        lapply(start,
-               function(s) {
-                   if(inherits(s, "skmeans"))
-                       row_normalize(s$prototypes)
-                   else if(!is.null(dim(s)))
-                       row_normalize(s)
-                   else {
-                       ## A vector of class ids, hopefully.
-                       ids <- match(s, unique(s))
-                       .hard_skmeans_C_for_normalized_x(x, ids)
-                   }
-               })
+        else
+            stop(gettextf("Invalid control option 'start'"))
+    }
+    else if(inherits(start, "skmeans"))
+        row_normalize(start$prototypes)
+    else if(!is.null(dim(start)))
+        row_normalize(start)
+    else {
+        ## A vector of class ids, hopefully.
+        ids <- match(start, unique(start))
+        .hard_skmeans_C_for_normalized_x(x, ids)
     }
 }
 
