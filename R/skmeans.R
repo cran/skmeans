@@ -113,8 +113,7 @@ function(x, g, ...)
     UseMethod("g_col_sums_by_group")
 g_col_sums_by_group.simple_triplet_matrix <-
 function(x, g, ...)
-    as.matrix(t(.Call("_row_tsums", t(x), factor(g), FALSE, FALSE,
-                      PACKAGE = "slam")))
+    as.matrix(t(.Call(slam:::R_row_tsums, t(x), factor(g), FALSE, FALSE)))
 g_col_sums_by_group.default <-
 function(x, g, ...)
 {
@@ -672,13 +671,15 @@ function(x, k, m, weights = 1, control = NULL)
     }
 
     opt_ids <- max.col(opt_u)
-    names(opt_ids) <- rownames(dissimilarities)
     
     ## Ensure that opt_u is a stochastic matrix.
     opt_u <- pmax(opt_u, 0)
     opt_u <- opt_u / rowSums(opt_u)
-    rownames(opt_u) <- rownames(dissimilarities)
     opt_u <- clue::cl_membership(clue::as.cl_membership(opt_u), k)
+
+    dimnames(opt_p) <- list(seq_len(k), colnames(x))
+    dimnames(opt_u) <- list(rownames(x), seq_len(k))
+    names(opt_ids) <- rownames(x)
 
     out <- clue::pclust_object(prototypes = opt_p,
                                membership = opt_u,
@@ -1346,6 +1347,10 @@ function(x, ids, k, s = nrow(x), p = NULL, v = NULL)
     ## <NOTE>
     ## No longer provide redundant memberships for hard partitions.
     ## </NOTE>
+
+    k <- nrow(p)                        # Just making sure ...
+    dimnames(p) <- list(seq_len(k), colnames(x))
+    names(ids) <- rownames(x)
 
     out <- clue::pclust_object(prototypes = p,
                                membership = NULL,

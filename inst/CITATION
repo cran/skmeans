@@ -1,0 +1,22 @@
+citHeader("To cite skmeans in publications use:")
+
+citEntry(entry = "Article",
+  title        = "Spherical $k$-Means Clustering",
+  author       = personList(as.person("Kurt Hornik"),
+                   as.person("Ingo Feinerer"),
+                   as.person("Martin Kober"),
+                   as.person("Christian Buchta")),
+  journal      = "Journal of Statistical Software",
+  year         = "2012",
+  volume       = "50",
+  number       = "10",
+  pages        = "1--22",
+  url          = "http://www.jstatsoft.org/v50/i10/",
+
+  textVersion  =
+  paste("Kurt Hornik, Ingo Feinerer, Martin Kober, Christian Buchta (2012).",
+        "Spherical k-Means Clustering.",
+        "Journal of Statistical Software, 50(10), 1-22.",
+        "URL http://www.jstatsoft.org/v50/i10/.")
+)
+
