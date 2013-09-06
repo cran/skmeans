@@ -60,7 +60,7 @@ function(x, y = NULL)
     base::tcrossprod(x, y)
 g_tcrossprod.simple_triplet_matrix <-
 function(x, y = NULL)
-    slam::tcrossprod_simple_triplet_matrix(x, y)
+    tcrossprod_simple_triplet_matrix(x, y)
 g_tcrossprod.dgCMatrix <-
 function(x, y = NULL)
     Matrix::tcrossprod(x, y)
@@ -77,36 +77,48 @@ function(x, y = NULL)
 g_row_sums <-
 function(x, na.rm = FALSE, dims = 1, ...)
     UseMethod("g_row_sums")
+## <NOTE>
+## These also also provided by package slam now, so one could simply do
+##   g_row_sums.default <-
+##   function(x, na.rm = FALSE, dims = 1, ...)
+##     slam::row_sums(x, na.rm = na.rm, dims = dims, ...)
+g_row_sums.default <-
+function(x, na.rm = FALSE, dims = 1, ...)
+    base::rowSums(x, na.rm = na.rm, dims = dims, ...)
 g_row_sums.simple_triplet_matrix <-
 function(x, na.rm = FALSE, dims = 1, ...)
     slam:::row_sums.simple_triplet_matrix(x, na.rm = na.rm,
                                          dims = dims, ...)
-g_row_sums.default <-
-function(x, na.rm = FALSE, dims = 1, ...)
-    base::rowSums(x, na.rm = na.rm, dims = dims, ...)
 g_row_sums.dgCMatrix <-
 function(x, na.rm = FALSE, dims = 1, ...)
     Matrix::rowSums(x, na.rm = na.rm, dims = dims, ...)
 g_row_sums.dgTMatrix <-
 function(x, na.rm = FALSE, dims = 1, ...)
     Matrix::rowSums(x, na.rm = na.rm, dims = dims, ...)
+## </NOTE>
 
 g_col_sums <-
 function(x, na.rm = FALSE, dims = 1, ...)
     UseMethod("g_col_sums")
+## <NOTE>
+## These also also provided by package slam now, so one could simply do
+##   g_col_sums.default <-
+##   function(x, na.rm = FALSE, dims = 1, ...)
+##     slam::col_sums(x, na.rm = na.rm, dims = dims, ...)
+g_col_sums.default <-
+function(x, na.rm = FALSE, dims = 1, ...)
+    base::colSums(x, na.rm = na.rm, dims = dims, ...)
 g_col_sums.simple_triplet_matrix <-
 function(x, na.rm = FALSE, dims = 1, ...)
     slam:::col_sums.simple_triplet_matrix(x, na.rm = na.rm,
                                          dims = dims, ...)
-g_col_sums.default <-
-function(x, na.rm = FALSE, dims = 1, ...)
-    base::colSums(x, na.rm = na.rm, dims = dims, ...)
 g_col_sums.dgCMatrix <-
 function(x, na.rm = FALSE, dims = 1, ...)
     Matrix::colSums(x, na.rm = na.rm, dims = dims, ...)
 g_col_sums.dgTMatrix <-
 function(x, na.rm = FALSE, dims = 1, ...)
     Matrix::colSums(x, na.rm = na.rm, dims = dims, ...)
+## </NOTE>
 
 g_col_sums_by_group <-
 function(x, g, ...)
@@ -161,35 +173,35 @@ function(x, y = NULL)
 ## functions.
 
 skmeans_family <-
-    clue::pclust_family(D =
-                        function(x, prototypes) {
-                            skmeans_xdist(x, prototypes)
-                        },
-                        C =
-                        function(x, weights, control) {
-                            ## Computes weighted averages of the
-                            ## normalized data.
-                            x <- row_normalize(x)
-                            weights <- weights / sum(weights)
-                            out <- g_col_sums_with_weights(x, weights)
-                            ## <NOTE>
-                            ## Should prototypes be normalized?
-                            ## They are not in the basic references.
-                            ## If normalization is desired, uncomment
-                            ##    out <- out / sqrt(sum(out ^ 2))
-                            ## </NOTE>
-                            out
-                        },
-                        init =
-                        function(x, k) {
-                            ## <NOTE>
-                            ## Should perhaps ensure that this returns
-                            ## unique prototypes.
-                            as.matrix(x[sample.int(nrow(x), k), ,
-                                        drop = FALSE])
-                            ## </NOTE>
-                        },
-                        description = "spherical k-means")
+    pclust_family(D =
+                  function(x, prototypes) {
+                      skmeans_xdist(x, prototypes)
+                  },
+                  C =
+                  function(x, weights, control) {
+                      ## Computes weighted averages of the
+                      ## normalized data.
+                      x <- row_normalize(x)
+                      weights <- weights / sum(weights)
+                      out <- g_col_sums_with_weights(x, weights)
+                      ## <NOTE>
+                      ## Should prototypes be normalized?
+                      ## They are not in the basic references.
+                      ## If normalization is desired, uncomment
+                      ##    out <- out / sqrt(sum(out ^ 2))
+                      ## </NOTE>
+                      out
+                  },
+                  init =
+                  function(x, k) {
+                      ## <NOTE>
+                      ## Should perhaps ensure that this returns
+                      ## unique prototypes.
+                      as.matrix(x[sample.int(nrow(x), k), ,
+                                  drop = FALSE])
+                      ## </NOTE>
+                  },
+                  description = "spherical k-means")
 
 ### * skmeans
 
@@ -675,18 +687,18 @@ function(x, k, m, weights = 1, control = NULL)
     ## Ensure that opt_u is a stochastic matrix.
     opt_u <- pmax(opt_u, 0)
     opt_u <- opt_u / rowSums(opt_u)
-    opt_u <- clue::cl_membership(clue::as.cl_membership(opt_u), k)
+    opt_u <- cl_membership(as.cl_membership(opt_u), k)
 
     dimnames(opt_p) <- list(seq_len(k), colnames(x))
     dimnames(opt_u) <- list(rownames(x), seq_len(k))
     names(opt_ids) <- rownames(x)
 
-    out <- clue::pclust_object(prototypes = opt_p,
-                               membership = opt_u,
-                               cluster = opt_ids,
-                               family = skmeans_family,
-                               m = m,
-                               value = opt_value)
+    out <- pclust_object(prototypes = opt_p,
+                         membership = opt_u,
+                         cluster = opt_ids,
+                         family = skmeans_family,
+                         m = m,
+                         value = opt_value)
     class(out) <- unique(c("skmeans", class(out)))
 
     out
@@ -712,7 +724,7 @@ function(x, k, m, weights = 1, control = NULL)
     D <- family$D
     family$C <- .C_for_normalized_x_and_prototypes
     family$D <- .D_for_normalized_x_and_prototypes
-    out <- clue::pclust(x, k, family, m, weights, control)
+    out <- pclust(x, k, family, m, weights, control)
     out$family$C <- C
     out$family$D <- D
 
@@ -1352,12 +1364,12 @@ function(x, ids, k, s = nrow(x), p = NULL, v = NULL)
     dimnames(p) <- list(seq_len(k), colnames(x))
     names(ids) <- rownames(x)
 
-    out <- clue::pclust_object(prototypes = p,
-                               membership = NULL,
-                               cluster = ids,
-                               family = skmeans_family,
-                               m = 1,
-                               value = v)
+    out <- pclust_object(prototypes = p,
+                         membership = NULL,
+                         cluster = ids,
+                         family = skmeans_family,
+                         m = 1,
+                         value = v)
     class(out) <- unique(c("skmeans", class(out)))
     
     out
