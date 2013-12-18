@@ -87,8 +87,7 @@ function(x, na.rm = FALSE, dims = 1, ...)
     base::rowSums(x, na.rm = na.rm, dims = dims, ...)
 g_row_sums.simple_triplet_matrix <-
 function(x, na.rm = FALSE, dims = 1, ...)
-    slam:::row_sums.simple_triplet_matrix(x, na.rm = na.rm,
-                                         dims = dims, ...)
+    slam::row_sums(x, na.rm = na.rm, dims = dims, ...)
 g_row_sums.dgCMatrix <-
 function(x, na.rm = FALSE, dims = 1, ...)
     Matrix::rowSums(x, na.rm = na.rm, dims = dims, ...)
@@ -110,8 +109,7 @@ function(x, na.rm = FALSE, dims = 1, ...)
     base::colSums(x, na.rm = na.rm, dims = dims, ...)
 g_col_sums.simple_triplet_matrix <-
 function(x, na.rm = FALSE, dims = 1, ...)
-    slam:::col_sums.simple_triplet_matrix(x, na.rm = na.rm,
-                                         dims = dims, ...)
+    slam::col_sums(x, na.rm = na.rm, dims = dims, ...)
 g_col_sums.dgCMatrix <-
 function(x, na.rm = FALSE, dims = 1, ...)
     Matrix::colSums(x, na.rm = na.rm, dims = dims, ...)
@@ -125,7 +123,8 @@ function(x, g, ...)
     UseMethod("g_col_sums_by_group")
 g_col_sums_by_group.simple_triplet_matrix <-
 function(x, g, ...)
-    as.matrix(t(.Call(slam:::R_row_tsums, t(x), factor(g), FALSE, FALSE)))
+    as.matrix(rollup(x, MARGIN = 1L, INDEX = factor(g), FUN = sum,
+                     na.rm = FALSE))
 g_col_sums_by_group.default <-
 function(x, g, ...)
 {
@@ -145,7 +144,7 @@ function(x, y = NULL)
     base::crossprod(x, y)
 g_crossprod.simple_triplet_matrix <-
 function(x, y = NULL)
-    slam:::.ttcrossprod_simple_triplet_matrix(t(y), t(x))
+    slam::crossprod_simple_triplet_matrix(x, y)
 g_crossprod.dgCMatrix <-
 function(x, y = NULL)
     Matrix::crossprod(x, y)
@@ -244,7 +243,8 @@ function(x, k, method = NULL, m = 1, weights = 1, control = list())
             pos <- pmatch(tolower(method),
                           tolower(names(skmeans_methods)))
             if(is.na(pos))
-                stop(gettextf("Invalid skmeans method '%s'.", method))
+                stop(gettextf("Invalid skmeans method '%s'.", method),
+                     domain = NA)
             method <- skmeans_methods[pos]
         } else {
             stop("Invalid skmeans method.")
@@ -257,7 +257,8 @@ function(x, k, method = NULL, m = 1, weights = 1, control = list())
     nf <- names(formals(method))
     if(any(ind <- is.na(match(na, nf))))
         stop(gettextf("Given skmeans method lacks formals %s",
-                      paste(sQuote(na[ind]), collapse = " and ")))
+                      paste(sQuote(na[ind]), collapse = " and ")),
+             domain = NA)
     ## Otherwise, ensure that method gets called with "all" arguments so
     ## that it does not also have to provide defaults for these.
     if(("m" %in% nf) && !("m" %in% na))
@@ -1185,7 +1186,7 @@ function(x, k, control = NULL)
                             sprintf("%s_row_ccs", datfile),
                             sprintf("%s_tfn_nz", datfile)),
                 add = TRUE)
-        slam:::write_stm_MC(x, datfile)
+        slam::write_stm_MC(x, datfile)
     }
     else
         datfile <- ifile
@@ -1307,7 +1308,8 @@ function(x, k, start, weights = 1)
             .skmeans_init_helper(x, k, p1)
         }
         else
-            stop(gettextf("Invalid control option 'start'"))
+            stop(gettextf("Invalid control option 'start'"),
+                 domain = NA)
     }
     else if(inherits(start, "skmeans"))
         row_normalize(start$prototypes)
@@ -1402,7 +1404,7 @@ function(x, w)
     ## (Other sparse matrix classes could be dealt with similarly ...)
     if(inherits(x, "simple_triplet_matrix")) {
         x$v <- x$v * w[x$i]
-        slam:::col_sums.simple_triplet_matrix(x)
+        slam::col_sums(x)
     } else if(inherits(x, "dgCMatrix")) {
         x@x <- x@x * w[x@i + 1L]
         Matrix::colSums(x)
@@ -1418,7 +1420,7 @@ function(x, l)
     ## (Other sparse matrix classes could be dealt with similarly ...)
     if(inherits(x, "simple_triplet_matrix")) {
         x$v <- x$v * l[x$i]
-        slam:::col_sums.simple_triplet_matrix(x)
+        slam::col_sums(x)
     } else if(inherits(x, "dgCMatrix")) {
         x@x <- x@x * l[x@i + 1L]
         Matrix::colSums(x)
