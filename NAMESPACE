@@ -1,5 +1,7 @@
 import("clue", "slam")
 importFrom("cluster", "silhouette")
+importFrom("stats", "runif")
+importFrom("utils", "read.table")
 
 export("skmeans", "skmeans_xdist")
 
