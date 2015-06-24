@@ -180,7 +180,7 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   are available from
   \url{http://www.dataminingresearch.com/index.php/2010/06/gmeans-clustering-software-compatible-with-gcc-4};
   original sources can be obtained from
-  \url{http://userweb.cs.utexas.edu/users/dml/Software/gmeans.html};
+  \url{http://www.cs.utexas.edu/users/dml/Software/gmeans.html};
   If the executable cannot be found in the system path via
   \code{\link{Sys.which}("gmeans")} (i.e., named differently or not
   made available in the system path), its (full) path must be specified
@@ -191,7 +191,7 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   an R interface to a suitable modification of the C code for the
   \eqn{k}-mean-directions algorithm made available as supplementary
   material to Maitra & Ramler (2010) at
-  \url{http://pubs.amstat.org/doi/suppl/10.1198/jcgs.2009.08155}.
+  \url{http://www.tandfonline.com/doi/suppl/10.1198/jcgs.2009.08155}.
   
   User-defined methods must have formals \code{x}, \code{k} and
   \code{control}, and optionally may have formals \code{weights} 
