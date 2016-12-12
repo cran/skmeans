@@ -176,15 +176,15 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
 
   Method \code{"gmeans"} requires that the \code{gmeans} executable is
   available.
-  Sources for compilation with ANSI C++ compliant compilers
-  are available from
-  \url{http://www.dataminingresearch.com/index.php/2010/06/gmeans-clustering-software-compatible-with-gcc-4};
+  Sources for compilation with ANSI C++ compliant compilers are
+  available from
+  \url{https://github.com/feinerer/gmeans-ansi-compliant};
   original sources can be obtained from
-  \url{http://www.cs.utexas.edu/users/dml/Software/gmeans.html};
+  \url{http://www.cs.utexas.edu/users/dml/Software/gmeans.html}.
   If the executable cannot be found in the system path via
   \code{\link{Sys.which}("gmeans")} (i.e., named differently or not
   made available in the system path), its (full) path must be specified
-  in control option \code{vcluster}.
+  in control option \code{gmeans}.
   
   Method \code{"kmndirs"} requires package \pkg{kmndirs} (available from
   \url{http://R-Forge.R-project.org/projects/kmndirs}), which provides
@@ -229,6 +229,7 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   I. S. Dhillon and D. S. Modha (2001).
   Concept decompositions for large sparse text data using clustering.
   \emph{Machine Learning}, \bold{42}, 143--175.
+  \doi{10.1023/A:1007612920971}.
 
   I. S. Dhillon and Y. Guan and J. Kogan (2002).
   Iterative clustering of high dimensional text data augmented by local
@@ -241,7 +242,7 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   Genetic \eqn{K}-means algorithm.
   \emph{IEEE Transactions on Systems, Man, and Cybernetics --- Part B:
     Cybernetics}, \bold{29}/3, 433--439.
-  \url{http://eprints.iisc.ernet.in/2937/1/genetic-k.pdf}.
+  \doi{10.1109/3477.764879}.
 
   G. Karypis (2003).
   \emph{CLUTO: A Clustering Toolkit}.
@@ -253,7 +254,8 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   A \eqn{k}-mean-directions algorithm for fast clustering of data on the
   sphere.
   \emph{Journal of Computational and Graphical Statistics}, \bold{19}/2,
-  377--396.
+  377--396. \cr
+  \doi{10.1198/jcgs.2009.08155}.
 }
 \author{
   Kurt Hornik \email{Kurt.Hornik@wu.ac.at}, \cr
