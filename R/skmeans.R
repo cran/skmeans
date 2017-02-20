@@ -221,7 +221,7 @@ function(x, k, method = NULL, m = 1, weights = 1, control = list())
         args <- c(args, list(m = m))
     if(!missing(weights) && !all(weights == 1))
         args <- c(args,
-                  list(weights = rep(weights, length.out = nrow(x))))
+                  list(weights = rep_len(weights, nrow(x))))
 
     skmeans_methods <-
         c(genetic = "genetic",
@@ -265,7 +265,7 @@ function(x, k, method = NULL, m = 1, weights = 1, control = list())
         args <- c(args, list(m = m))
     if(("weights" %in% nf) && !("weights" %in% na))
         args <- c(args,
-                  list(weights = rep(weights, length.out = nrow(x))))
+                  list(weights = rep_len(weights, nrow(x))))
 
     ## Call the skmeans method.
     y <- do.call(method, args)
@@ -1332,7 +1332,7 @@ function(x, k, p1)
     p1 <- rbind(c(as.matrix(p1)))
     s <- g_tcrossprod(x, p1)
     p[1L, ] <- p1
-    for(i in seq(2L, length.out = k - 1L)) {
+    for(i in seq.int(2L, length.out = k - 1L)) {
         s <- pmax(s, g_tcrossprod(x, p1))
         p[i, ] <- p1 <- as.matrix(x[which.min(s), , drop = FALSE])
     }
