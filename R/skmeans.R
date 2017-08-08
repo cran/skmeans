@@ -519,7 +519,7 @@ function(x, k, weights = 1, control = NULL)
                 ind <- cbind(seq_len(nr), fv_ids)
                 ## The effects of removing an object from its cluster.
                 new_norms_rem <-
-                    sqrt(nids ^ 2 - crossprods[ind] + wsq[fv_ids])
+                    sqrt(nids ^ 2 - crossprods[ind] + wsq)
                 Delta_Q_rem <- new_norms_rem - nids
                 ## The effects of adding an object to another cluster.
                 new_norms_add <-
