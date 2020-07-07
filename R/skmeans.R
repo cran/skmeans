@@ -396,7 +396,10 @@ function(x, k, m = 1, weights = 1, control = NULL)
         if(is.null(nruns))
             nruns <- 1L
         start <- as.list(rep.int("p", nruns))
-    } else if(!is.list(start) || inherits(start, "skmeans"))
+    }
+    else if(is.character(start))
+        start <- as.list(start)
+    else if(!is.list(start) || inherits(start, "skmeans"))
         start <- list(start)
     
     control$start <- start
@@ -779,6 +782,8 @@ function(x, k, weights = NULL, control = NULL)
     start <- control$start
     if(is.null(start))
         start <- as.list(rep.int("p", popsize))
+    else if(is.character(start))
+        start <- as.list(start)
     else if(!is.list(start) || inherits(start, "skmeans"))
         start <- list(start)
     p <- lapply(start,

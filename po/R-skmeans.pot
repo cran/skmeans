@@ -1,0 +1,89 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: skmeans 0.2-11\n"
+"POT-Creation-Date: 2017-08-12 22:23\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+
+msgid "Zero rows are not allowed."
+msgstr ""
+
+msgid "Invalid skmeans method '%s'."
+msgstr ""
+
+msgid "Invalid skmeans method."
+msgstr ""
+
+msgid "Given skmeans method lacks formals %s"
+msgstr ""
+
+msgid "A hard spherical k-means partition of %d objects into %d classes."
+msgstr ""
+
+msgid "Class sizes: %s"
+msgstr ""
+
+msgid "A soft spherical k-means partition (degree m = %f) of %d objects into %d classes."
+msgstr ""
+
+msgid "Class sizes of closest hard partition: %s."
+msgstr ""
+
+msgid "All weights must be positive."
+msgstr ""
+
+msgid "Pclust run: %d"
+msgstr ""
+
+msgid "Iteration: %d *** value: %g"
+msgstr ""
+
+msgid "Iteration: %d [CH %d] *** value: %g change: %g"
+msgstr ""
+
+msgid "Moved object %d from cluster %d to %d."
+msgstr ""
+
+msgid "Rolling back %d chain move(s)."
+msgstr ""
+
+msgid "Initial solutions created (length: %d)"
+msgstr ""
+
+msgid "Selecting new population: %s"
+msgstr ""
+
+msgid "Iteration: %d *** value[%d]: %g pre-optimized"
+msgstr ""
+
+msgid "Iteration: %d *** value[%d]: %g"
+msgstr ""
+
+msgid "Iteration: %d [KM] *** value: %g"
+msgstr ""
+
+msgid "Moving %d from cluster %d to %d."
+msgstr ""
+
+msgid "Iteration: %d [FV %d] *** value: %g"
+msgstr ""
+
+msgid "Iteration: %d [FV %d, CH %d] *** value: %g change: %g"
+msgstr ""
+
+msgid "Rolling back %d chain moves."
+msgstr ""
+
+msgid "CLUTO vcluster executable not found"
+msgstr ""
+
+msgid "gmeans executable not found"
+msgstr ""
+
+msgid "Invalid control option 'start'"
+msgstr ""
