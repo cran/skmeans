@@ -168,7 +168,7 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   Method \code{"CLUTO"} requires that the CLUTO \code{vcluster}
   executable is available.  CLUTO binaries for the Linux, SunOS, Mac OS
   X, and MS Windows platforms can be downloaded from
-  \url{http://www-users.cs.umn.edu/~karypis/cluto/}.  If the executable
+  \url{https://www-users.cs.umn.edu/~karypis/cluto/}.  If the executable
   cannot be found in the system path via
   \code{\link{Sys.which}("vcluster")} (i.e., named differently or not
   made available in the system path), its (full) path must be specified
@@ -180,7 +180,7 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   available from
   \url{https://github.com/feinerer/gmeans-ansi-compliant};
   original sources can be obtained from
-  \url{http://www.cs.utexas.edu/users/dml/Software/gmeans.html}.
+  \url{https://www.cs.utexas.edu/users/dml/Software/gmeans.html}.
   If the executable cannot be found in the system path via
   \code{\link{Sys.which}("gmeans")} (i.e., named differently or not
   made available in the system path), its (full) path must be specified
@@ -191,7 +191,7 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   an R interface to a suitable modification of the C code for the
   \eqn{k}-mean-directions algorithm made available as supplementary
   material to Maitra & Ramler (2010) at
-  \url{http://www.tandfonline.com/doi/suppl/10.1198/jcgs.2009.08155}.
+  \url{https://www.tandfonline.com/doi/suppl/10.1198/jcgs.2009.08155}.
   
   User-defined methods must have formals \code{x}, \code{k} and
   \code{control}, and optionally may have formals \code{weights} 
@@ -236,7 +236,7 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   search.
   In \emph{Proceedings of the Second IEEE International Conference on
     Data Mining}, pages 131--138.
-  \url{http://www.cs.utexas.edu/users/inderjit/public_papers/iterative_icdm02.pdf}.
+  \url{https://www.cs.utexas.edu/users/inderjit/public_papers/iterative_icdm02.pdf}.
 
   K. Krishna and M. Narasimha Murty (1999).
   Genetic \eqn{K}-means algorithm.

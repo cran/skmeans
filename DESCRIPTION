@@ -1,5 +1,5 @@
 Package: skmeans
-Version: 0.2-12
+Version: 0.2-13
 Title: Spherical k-Means Clustering
 Authors@R: c(person("Kurt", "Hornik", role = c("aut", "cre"),
                     email = "Kurt.Hornik@R-project.org",
@@ -14,10 +14,10 @@ Enhances: Matrix, kmndirs
 Additional_repositories: http://R-Forge.R-project.org/
 License: GPL-2
 NeedsCompilation: no
-Packaged: 2020-07-07 17:07:45 UTC; hornik
+Packaged: 2020-12-02 14:02:35 UTC; hornik
 Author: Kurt Hornik [aut, cre] (<https://orcid.org/0000-0003-4198-9911>),
   Ingo Feinerer [aut],
   Martin Kober [aut]
 Maintainer: Kurt Hornik <Kurt.Hornik@R-project.org>
 Repository: CRAN
-Date/Publication: 2020-07-07 17:13:52 UTC
+Date/Publication: 2020-12-03 18:47:06 UTC
