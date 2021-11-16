@@ -187,7 +187,7 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   in control option \code{gmeans}.
   
   Method \code{"kmndirs"} requires package \pkg{kmndirs} (available from
-  \url{http://R-Forge.R-project.org/projects/kmndirs}), which provides
+  \url{https://R-Forge.R-project.org/projects/kmndirs}), which provides
   an R interface to a suitable modification of the C code for the
   \eqn{k}-mean-directions algorithm made available as supplementary
   material to Maitra & Ramler (2010) at

@@ -1,12 +1,12 @@
-96e73034f4e487b64b2f06dc6478d49d *DESCRIPTION
+cdff141116b64786d4ec52bfe388cb25 *DESCRIPTION
 55c7ad40dca405e14cb6af45d4a9adc1 *NAMESPACE
-d5efb26e167b8ac7ff061028c96544c7 *R/skmeans.R
-102fc7009442f896a56215fd318ffbad *build/partial.rdb
+bebd2ea18c2494e13f2709d3bbaadd3c *R/skmeans.R
+6f86929794df515c13b8eeb0a25193ac *build/partial.rdb
 0b1f7baee75f073ffbada8fc334be4a0 *inst/CITATION
 4bf299b3d7a42a40aa46fa3773e4a606 *inst/cluto/re0.mat
 bc5acc140caebdc0da48ab4422942ba0 *inst/cluto/re0.mat.clabel
 a07112ae60297b2991a90cf8254a9148 *inst/cluto/re0.mat.rclass
 43b354e703bb23823a25f857965b5d92 *inst/po/en@quot/LC_MESSAGES/R-skmeans.mo
-da1a3cb3b4d256a44e555e56eba0f511 *man/skmeans.Rd
+92ed7fa4560d0609ab535dcb6fe53429 *man/skmeans.Rd
 42f61a5c229119188f1d55a0097621ea *man/skmeans_xdist.Rd
 f72578213c2540bc48fe1e5f83352415 *po/R-skmeans.pot

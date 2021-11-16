@@ -511,7 +511,7 @@ function(x, k, weights = 1, control = NULL)
             fv_sums <- sums
             fv_norms <- norms
             fv_p <- p
-            crossprods <- 2 * sweep(similarities, 2L, norms, "*")
+            crossprods <- 2 * sweep(similarities, 2L, norms, `*`)
             ## Could special-case maxchains == 1 to save a few msecs,
             ## but prefer clarity for speed here.
             change <- 0            
@@ -526,8 +526,8 @@ function(x, k, weights = 1, control = NULL)
                 Delta_Q_rem <- new_norms_rem - nids
                 ## The effects of adding an object to another cluster.
                 new_norms_add <-
-                    sqrt(outer(wsq, fv_norms ^ 2, "+") + crossprods)
-                Delta_Q_add <- sweep(new_norms_add, 2L, fv_norms, "-")
+                    sqrt(outer(wsq, fv_norms ^ 2, `+`) + crossprods)
+                Delta_Q_add <- sweep(new_norms_add, 2L, fv_norms, `-`)
                 ## What is the best such move?
                 Delta_Q <- Delta_Q_rem + Delta_Q_add
                 Delta_Q[ind] <- -1e9
@@ -910,7 +910,7 @@ function(x, k, control = NULL)
            < reltol * (abs(old_value) + reltol)) {
             ## Block update performed only minor improvement.
             ## Try first variation steps.
-            crossprods <- 2 * sweep(similarities, 2L, norms, "*")
+            crossprods <- 2 * sweep(similarities, 2L, norms, `*`)
             count <- 1L
             repeat {
                 nids <- norms[ids]
@@ -920,8 +920,8 @@ function(x, k, control = NULL)
                 Delta_Q_rem <- new_norms_rem - nids
                 ## The effects of adding an object to another cluster.
                 new_norms_add <-
-                    sqrt(sweep(crossprods, 2, norms ^ 2 + 1, "+"))
-                Delta_Q_add <- sweep(new_norms_add, 2, norms, "-")
+                    sqrt(sweep(crossprods, 2, norms ^ 2 + 1, `+`))
+                Delta_Q_add <- sweep(new_norms_add, 2, norms, `-`)
                 ## What is the best such move?
                 Delta_Q <- Delta_Q_rem + Delta_Q_add
                 Delta_Q[ind] <- 0
@@ -1015,7 +1015,7 @@ function(x, k, control = NULL)
            < reltol * (abs(old_value) + reltol)) {
             ## Block update performed only minor improvement.
             ## Try first variation steps.
-            crossprods <- 2 * sweep(similarities, 2L, norms, "*")
+            crossprods <- 2 * sweep(similarities, 2L, norms, `*`)
             count <- 1L
             repeat {
                 ## Save prototypes for rollback.
@@ -1036,8 +1036,8 @@ function(x, k, control = NULL)
                     ## The effects of adding an object to another
                     ## cluster.
                     new_norms_add <-
-                        sqrt(sweep(crossprods, 2L, norms ^ 2 + 1, "+"))
-                    Delta_Q_add <- sweep(new_norms_add, 2, norms, "-")
+                        sqrt(sweep(crossprods, 2L, norms ^ 2 + 1, `+`))
+                    Delta_Q_add <- sweep(new_norms_add, 2, norms, `-`)
                     ## What is the best such move?
                     Delta_Q <- Delta_Q_rem + Delta_Q_add
                     Delta_Q[ind] <- -1e9
