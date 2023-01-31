@@ -168,7 +168,7 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   Method \code{"CLUTO"} requires that the CLUTO \code{vcluster}
   executable is available.  CLUTO binaries for the Linux, SunOS, Mac OS
   X, and MS Windows platforms can be downloaded from
-  \url{https://www-users.cs.umn.edu/~karypis/cluto/}.  If the executable
+  \url{https://www-users.cse.umn.edu/~karypis/cluto/}.  If the executable
   cannot be found in the system path via
   \code{\link{Sys.which}("vcluster")} (i.e., named differently or not
   made available in the system path), its (full) path must be specified
