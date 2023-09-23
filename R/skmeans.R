@@ -57,7 +57,7 @@ function(x, y = NULL)
     UseMethod("g_tcrossprod")
 g_tcrossprod.default <-
 function(x, y = NULL)
-    base::tcrossprod(x, y)
+    tcrossprod(x, y)
 g_tcrossprod.simple_triplet_matrix <-
 function(x, y = NULL)
     tcrossprod_simple_triplet_matrix(x, y)
@@ -69,7 +69,7 @@ function(x, y = NULL)
     Matrix::tcrossprod(x, y)
 
 ## (Using
-##    g_tcrossprod.default <- base::tcrossprod
+##    g_tcrossprod.default <- tcrossprod
 ## has R CMD check NOTE .Internal calls, using
 ##    g_tcrossprod.dgTMatrix <- Matrix::tcrossprod
 ## loads Matrix dependencies.)
@@ -81,13 +81,13 @@ function(x, na.rm = FALSE, dims = 1, ...)
 ## These also also provided by package slam now, so one could simply do
 ##   g_row_sums.default <-
 ##   function(x, na.rm = FALSE, dims = 1, ...)
-##     slam::row_sums(x, na.rm = na.rm, dims = dims, ...)
+##     row_sums(x, na.rm = na.rm, dims = dims, ...)
 g_row_sums.default <-
 function(x, na.rm = FALSE, dims = 1, ...)
-    base::rowSums(x, na.rm = na.rm, dims = dims, ...)
+    rowSums(x, na.rm = na.rm, dims = dims, ...)
 g_row_sums.simple_triplet_matrix <-
 function(x, na.rm = FALSE, dims = 1, ...)
-    slam::row_sums(x, na.rm = na.rm, dims = dims, ...)
+    row_sums(x, na.rm = na.rm, dims = dims, ...)
 g_row_sums.dgCMatrix <-
 function(x, na.rm = FALSE, dims = 1, ...)
     Matrix::rowSums(x, na.rm = na.rm, dims = dims, ...)
@@ -103,13 +103,13 @@ function(x, na.rm = FALSE, dims = 1, ...)
 ## These also also provided by package slam now, so one could simply do
 ##   g_col_sums.default <-
 ##   function(x, na.rm = FALSE, dims = 1, ...)
-##     slam::col_sums(x, na.rm = na.rm, dims = dims, ...)
+##     col_sums(x, na.rm = na.rm, dims = dims, ...)
 g_col_sums.default <-
 function(x, na.rm = FALSE, dims = 1, ...)
-    base::colSums(x, na.rm = na.rm, dims = dims, ...)
+    colSums(x, na.rm = na.rm, dims = dims, ...)
 g_col_sums.simple_triplet_matrix <-
 function(x, na.rm = FALSE, dims = 1, ...)
-    slam::col_sums(x, na.rm = na.rm, dims = dims, ...)
+    col_sums(x, na.rm = na.rm, dims = dims, ...)
 g_col_sums.dgCMatrix <-
 function(x, na.rm = FALSE, dims = 1, ...)
     Matrix::colSums(x, na.rm = na.rm, dims = dims, ...)
@@ -141,10 +141,10 @@ function(x, y = NULL)
     UseMethod("g_crossprod", y)
 g_crossprod.default <-
 function(x, y = NULL)
-    base::crossprod(x, y)
+    crossprod(x, y)
 g_crossprod.simple_triplet_matrix <-
 function(x, y = NULL)
-    slam::crossprod_simple_triplet_matrix(x, y)
+    crossprod_simple_triplet_matrix(x, y)
 g_crossprod.dgCMatrix <-
 function(x, y = NULL)
     Matrix::crossprod(x, y)
@@ -1191,7 +1191,7 @@ function(x, k, control = NULL)
                             sprintf("%s_row_ccs", datfile),
                             sprintf("%s_tfn_nz", datfile)),
                 add = TRUE)
-        slam::write_stm_MC(x, datfile)
+        write_stm_MC(x, datfile)
     }
     else
         datfile <- ifile
@@ -1409,7 +1409,7 @@ function(x, w)
     ## (Other sparse matrix classes could be dealt with similarly ...)
     if(inherits(x, "simple_triplet_matrix")) {
         x$v <- x$v * w[x$i]
-        slam::col_sums(x)
+        col_sums(x)
     } else if(inherits(x, "dgCMatrix")) {
         x@x <- x@x * w[x@i + 1L]
         Matrix::colSums(x)
@@ -1425,7 +1425,7 @@ function(x, l)
     ## (Other sparse matrix classes could be dealt with similarly ...)
     if(inherits(x, "simple_triplet_matrix")) {
         x$v <- x$v * l[x$i]
-        slam::col_sums(x)
+        col_sums(x)
     } else if(inherits(x, "dgCMatrix")) {
         x@x <- x@x * l[x@i + 1L]
         Matrix::colSums(x)
