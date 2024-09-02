@@ -1230,7 +1230,7 @@ function(x, k, control = NULL)
 
     x <- row_normalize(x)
 
-    ids <- kmndirs:::kmndirs(x, k, nrandom, maxiter) + 1
+    ids <- kmndirs::kmndirs(x, k, nrandom, maxiter) + 1
 
     .hard_skmeans_object_for_normalized_x(x, ids, k)
 }

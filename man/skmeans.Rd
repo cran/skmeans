@@ -167,9 +167,9 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
 
   Method \code{"CLUTO"} requires that the CLUTO \code{vcluster}
   executable is available.  CLUTO binaries for the Linux, SunOS, Mac OS
-  X, and MS Windows platforms can be downloaded from
-  \url{https://www-users.cse.umn.edu/~karypis/cluto/}.  If the executable
-  cannot be found in the system path via
+  X, and MS Windows platforms used to be downloadable from
+  \samp{https://www-users.cse.umn.edu/~karypis/cluto/}.
+  If the executable cannot be found in the system path via
   \code{\link{Sys.which}("vcluster")} (i.e., named differently or not
   made available in the system path), its (full) path must be specified
   in control option \code{vcluster}.
@@ -180,7 +180,7 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   available from
   \url{https://github.com/feinerer/gmeans-ansi-compliant};
   original sources can be obtained from
-  \url{https://www.cs.utexas.edu/users/dml/Software/gmeans.html}.
+  \url{https://www.cs.utexas.edu/~dml/Software/gmeans.html}.
   If the executable cannot be found in the system path via
   \code{\link{Sys.which}("gmeans")} (i.e., named differently or not
   made available in the system path), its (full) path must be specified
@@ -236,8 +236,8 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   search.
   In \emph{Proceedings of the Second IEEE International Conference on
     Data Mining}, pages 131--138.
-  \url{https://www.cs.utexas.edu/users/inderjit/public_papers/iterative_icdm02.pdf}.
-
+  \url{https://www.cs.utexas.edu/~inderjit/public_papers/iterative_icdm02.pdf}.
+  
   K. Krishna and M. Narasimha Murty (1999).
   Genetic \eqn{K}-means algorithm.
   \emph{IEEE Transactions on Systems, Man, and Cybernetics --- Part B:
@@ -248,7 +248,8 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   \emph{CLUTO: A Clustering Toolkit}.
   Technical Report #02-017, Department of Computer Science, University
   of Minnesota.
-  \url{http://glaros.dtc.umn.edu/gkhome/fetch/sw/cluto/manual.pdf}.
+  Used to be available from
+  \samp{http://glaros.dtc.umn.edu/gkhome/fetch/sw/cluto/manual.pdf}.
 
   R. Maitra and I. P. Ramler (2010).
   A \eqn{k}-mean-directions algorithm for fast clustering of data on the
