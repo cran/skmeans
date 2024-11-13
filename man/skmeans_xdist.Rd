@@ -10,7 +10,7 @@ skmeans_xdist(x, y = NULL)
 \arguments{
   \item{x}{A numeric data matrix.
     Can be a dense matrix,
-    \link[slam:matrix]{simple triplet matrix}
+    \link[slam]{simple triplet matrix}
     (package \pkg{slam}), or a
     \link[Matrix:dgTMatrix-class]{dgTMatrix}
     (package \pkg{Matrix}).}

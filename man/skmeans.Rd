@@ -20,7 +20,7 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   \item{x}{A numeric data matrix, with rows corresponding to the objects
     to be partitioned (such that row \eqn{b} contains \eqn{x_b}).  Can
     be a dense matrix, a
-    \link[slam:matrix]{simple triplet matrix}
+    \link[slam]{simple triplet matrix}
     (package \pkg{slam}), or a
     \link[Matrix:dgTMatrix-class]{dgTMatrix}
     (package \pkg{Matrix}).
