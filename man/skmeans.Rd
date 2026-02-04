@@ -49,10 +49,10 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   The \dQuote{standard} spherical \eqn{k}-means problem where all case
   weights are one and \eqn{m = 1} is equivalent to maximizing the
   criterion \eqn{\sum_j \sum_{b \in C_j} \cos(x_b, p_j)},
-  where \eqn{C_j} is the \eqn{j}-th class of the partition.  This is the
-  formulation used in Dhillon & Modha (2001) and related references, and
-  when optimized over the prototypes yields the criterion function
-  \eqn{\mathcal{I}_2} in the CLUTO documentation.
+  where \eqn{C_j} is the \eqn{j}-th class of the partition.
+  This is the formulation used in \bibcitet{skmeans::Dhillon+Modha:2001}
+  and related references, and when optimized over the prototypes yields
+  the criterion function \eqn{\mathcal{I}_2} in the CLUTO documentation.
 
   Obtaining optimal spherical \eqn{k}-means partitions obviously is a
   computationally hard problem, and several methods are available which
@@ -61,17 +61,18 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
 
   \describe{
     \item{\code{"genetic"}}{a genetic algorithm patterned after the
-      genetic \eqn{k}-means algorithm of Krishna & Narasimha Murty (1999).}
+      genetic \eqn{k}-means algorithm of
+      \bibcitet{skmeans::Krishna+Narasimha_Murty:1999}.}
     \item{\code{"pclust"}}{a Lloyd-Forgy style fixed-point algorithm which
       iterates between determining optimal memberships for fixed
       prototypes, and computing optimal prototypes for fixed
       memberships.  For hard partitions, this can optionally attempt
       further local improvements via Kernighan-Lin chains of first
-      variation single object moves as suggested by Dhillon, Guan and
-      Kogan (2002).}
+      variation single object moves as suggested by
+      \bibcitet{skmeans::Dhillon+Guan+Kogan:2002}.}
     \item{\code{"CLUTO"}}{an interface to the \code{vcluster} partitional
       clustering program from CLUTO, the CLUstering TOolkit by George
-      Karypis.}
+      Karypis \bibcitep{skmeans::Karypis:2002}.}
     \item{\code{"gmeans"}}{an interface to the \code{gmeans} partitional
       clustering program by Yuqiang Guan.}
     \item{\code{"kmndirs"}}{an interface to the C code for the
@@ -190,7 +191,7 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   \url{https://R-Forge.R-project.org/projects/kmndirs}), which provides
   an R interface to a suitable modification of the C code for the
   \eqn{k}-mean-directions algorithm made available as supplementary
-  material to Maitra & Ramler (2010) at
+  material to \bibcitet{skmeans::Maitra+Ramler:2010} at
   \url{https://www.tandfonline.com/doi/suppl/10.1198/jcgs.2009.08155}.
   
   User-defined methods must have formals \code{x}, \code{k} and
@@ -226,42 +227,12 @@ skmeans(x, k, method = NULL, m = 1, weights = 1, control = list())
   from class \code{pclust}, see the examples.
 }
 \references{
-  I. S. Dhillon and D. S. Modha (2001).
-  Concept decompositions for large sparse text data using clustering.
-  \emph{Machine Learning}, \bold{42}, 143--175.
-  \doi{10.1023/A:1007612920971}.
-
-  I. S. Dhillon and Y. Guan and J. Kogan (2002).
-  Iterative clustering of high dimensional text data augmented by local
-  search.
-  In \emph{Proceedings of the Second IEEE International Conference on
-    Data Mining}, pages 131--138.
-  \url{https://www.cs.utexas.edu/~inderjit/public_papers/iterative_icdm02.pdf}.
-  
-  K. Krishna and M. Narasimha Murty (1999).
-  Genetic \eqn{K}-means algorithm.
-  \emph{IEEE Transactions on Systems, Man, and Cybernetics --- Part B:
-    Cybernetics}, \bold{29}/3, 433--439.
-  \doi{10.1109/3477.764879}.
-
-  G. Karypis (2003).
-  \emph{CLUTO: A Clustering Toolkit}.
-  Technical Report #02-017, Department of Computer Science, University
-  of Minnesota.
-  Used to be available from
-  \samp{http://glaros.dtc.umn.edu/gkhome/fetch/sw/cluto/manual.pdf}.
-
-  R. Maitra and I. P. Ramler (2010).
-  A \eqn{k}-mean-directions algorithm for fast clustering of data on the
-  sphere.
-  \emph{Journal of Computational and Graphical Statistics}, \bold{19}/2,
-  377--396. \cr
-  \doi{10.1198/jcgs.2009.08155}.
+  \bibshow{*}
 }
 \author{
-  Kurt Hornik \email{Kurt.Hornik@wu.ac.at}, \cr
+  Kurt Hornik \email{Kurt.Hornik@R-project.org}, \cr
   Ingo Feinerer \email{feinerer@logic.at}, \cr
-  Martin Kober \email{martin.kober@wu.ac.at}.
+  Martin Kober.
 }
 \examples{
 set.seed(1234)
